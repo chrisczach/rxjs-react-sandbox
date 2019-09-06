@@ -1,0 +1,19 @@
+.wrapper{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.75em;
+  font-weight: 100;
+  background: var(--color-main-dark);
+}
+
+.start{
+  font-size: 2em;
+  color: var(--color-main-light);
+  padding: 0.5em;
+}
+.instructions{
+  color: var(--color-accent-brand);
+}

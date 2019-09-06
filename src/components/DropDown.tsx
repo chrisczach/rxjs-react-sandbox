@@ -1,19 +1,23 @@
 import React, { FC } from 'react'
 
-export const DropDown: FC<IProps> = ({
-  keys,
-  updateHandler
-}) => {
+import styles from './Dropdown.module.css'
+
+export const DropDown: FC<IProps> = ({ keys, updateHandler }) => {
   return (
-    <div>
-      {keys.map(key => (
-        <div onClick={() => updateHandler(key)}>{key}</div>
-      ))}
-    </div>
+    <select
+      onChange={({ target: { value } }) => updateHandler(value)}
+      className={styles.wrapper}>
+      <option value='' disabled selected>
+        Select example to run
+      </option>
+      {keys.map(
+        key => key !== `StartScreen` && <option value={key}>{key}</option>
+      )}
+    </select>
   )
 }
 
 interface IProps {
-  keys: Array<String>
+  keys: Array<string>
   updateHandler: Function
 }

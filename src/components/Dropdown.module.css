@@ -1,0 +1,11 @@
+.wrapper{
+  position: fixed;
+  top: 1em;
+  right: 1em;
+}
+
+select{
+  background: var(--color-main-light);
+  color: var(--color-main-dark);
+  font-size: 1.05em;
+}

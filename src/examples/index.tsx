@@ -1,7 +1,11 @@
 import { MouseEvents } from './MouseEvents'
 import { StartScreen } from './StartScreen'
+import { ApiSubscriber } from './ApiSubscriber'
 
-export default {
+const examples: any = {
   MouseEvents,
-  StartScreen
+  StartScreen,
+  ApiSubscriber
 }
+
+export default examples

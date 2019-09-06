@@ -5,12 +5,12 @@ import { DropDown } from './components/DropDown'
 
 const App: FC = () => {
   const [activeExample, setActiveExample] = useState(`StartScreen`)
-
+  const ActiveComponent = examples[activeExample]
   return (
-    <div>
+    <>
       <DropDown keys={Object.keys(examples)} updateHandler={setActiveExample} />
-      {activeExample}
-    </div>
+      <ActiveComponent />
+    </>
   )
 }
 

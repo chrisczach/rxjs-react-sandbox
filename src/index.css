@@ -6,6 +6,14 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --color-main-dark: #1A1B22;
+  --color-accent-dark: #B04A46;
+  --color-main-light: #F5F2ED;
+  --color-accent-light: #92959A;
+  --color-accent-brand: #AD8587;
+background: var(--color-main-dark);
+color: var(--color-main-light);
+
 }
 
 code {
