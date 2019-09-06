@@ -2,6 +2,7 @@
   cursor: none;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 .vertical{
@@ -55,4 +56,11 @@ transform: translate(-50%, -50%) rotate(45deg);
   position: fixed;
   background: var(--color-accent-brand);
   opacity: .50;
+}
+
+.removeButton{
+  padding: 1em;
+  font-size: 1.25em;
+  position: relative;
+  z-index: 200;
 }
