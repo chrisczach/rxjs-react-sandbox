@@ -8,6 +8,7 @@
   pointer-events: none;
 position: fixed;
 width: 1px;
+top: 0;
 height: 100vh;
 background: var(--color-accent-light);
 }
@@ -15,6 +16,7 @@ background: var(--color-accent-light);
 .horizontal{
   pointer-events: none;
   position: fixed;
+  left: 0;
 width: 100vw;
 height: 1px;
 background: var(--color-accent-light);
@@ -41,4 +43,16 @@ transform: translate(-50%, -50%) rotate(45deg);
 
 .stats{
   margin: 0.5em;
+}
+
+.square {
+  position: fixed;
+  background: var(--color-accent-brand);
+  opacity: .25;
+}
+
+.currentSquare {
+  position: fixed;
+  background: var(--color-accent-brand);
+  opacity: .50;
 }
