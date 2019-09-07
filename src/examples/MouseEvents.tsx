@@ -1,7 +1,8 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState, createRef } from 'react'
 import { fromEvent, merge } from 'rxjs'
 
 import styles from './MouseEvents.module.css'
+const clickTarget: any = createRef()
 
 export const MouseEvents: FC = () => {
   const [mouseXY, setMouseXY] = useState({ x: 0, y: 0 })
@@ -12,26 +13,26 @@ export const MouseEvents: FC = () => {
   })
   const [squares, setSquares]: any = useState([])
 
-  const addSquare = ({ start, end }: any) => {
-    console.log(clickState)
-    const element = <Square start={start} end={end} />
-    setSquares((prev: Array<any>) => [...prev, element])
-  }
-
   const removeSquare = (num = 1) => {
-    setSquares((prev: Array<any>) => [...prev].slice(0, prev.length - 1 - num))
+    setSquares((prev: Array<any>) => [...prev].slice(0, prev.length - num))
   }
 
   useEffect(() => {
+    const addSquare = ({ start, end }: any) => {
+      console.log(clickState)
+      const element = <Square start={start} end={end} />
+      setSquares((prev: Array<any>) => [...prev, element])
+    }
+
     const mouseMove = fromEvent(document, 'mousemove').subscribe(
       ({ clientX: x, clientY: y }: any) => {
         setMouseXY({ x, y })
       }
     )
 
-    const mouseDown = fromEvent(document, 'mousedown')
+    const mouseDown = fromEvent(clickTarget.current, 'mousedown')
 
-    const mouseUp = fromEvent(document, 'mouseup')
+    const mouseUp = fromEvent(clickTarget.current, 'mouseup')
 
     const clickTracker = merge(mouseDown, mouseUp).subscribe(
       ({ type, clientX: x, clientY: y }: any) => {
@@ -50,10 +51,10 @@ export const MouseEvents: FC = () => {
       mouseMove.unsubscribe()
       clickTracker.unsubscribe()
     }
-  }, [])
+  }, [clickState])
 
   return (
-    <div className={styles.wrapper}>
+    <>
       <div className={styles.stats}>{`Position ${JSON.stringify(
         mouseXY,
         null,
@@ -65,8 +66,11 @@ export const MouseEvents: FC = () => {
         2
       )}`}</div>
       <button
+        style={{ opacity: squares.length ? 1 : 0 }}
+        className={styles.removeButton}
         onClick={e => {
           e.stopPropagation()
+          e.preventDefault()
           removeSquare()
         }}>
         Remove Square
@@ -78,17 +82,18 @@ export const MouseEvents: FC = () => {
         style={{ top: mouseXY.y + 'px', left: mouseXY.x + 'px' }}
         className={styles.crosshair}
       />
-
-      {[
-        ...squares,
-        <Square
-          start={clickState.down}
-          current
-          end={mouseXY}
-          show={clickState.type === 'mousedown'}
-        />
-      ]}
-    </div>
+      <div className={styles.wrapper} ref={clickTarget}>
+        {[
+          ...squares,
+          <Square
+            start={clickState.down}
+            current
+            end={mouseXY}
+            show={clickState.type === 'mousedown'}
+          />
+        ]}
+      </div>
+    </>
   )
 }
 
@@ -119,22 +124,3 @@ const Square = ({
       className={styles.currentSquare}></div>
   )
 }
-
-// const addSquare = ({
-//   start,
-//   end
-// }: {
-//   start: { x: number; y: number }
-//   end: { x: number; y: number }
-// }) => {
-//   const x = Math.min(start.x, end.x)
-//   const y = Math.min(start.y, end.y)
-//   const width = Math.max(start.x, end.x) - x + 'px'
-//   const height = Math.max(start.y, end.y) - y + 'px'
-//   setSquares((prev: any) => [
-//     ...prev,
-//     <div
-//       style={{ top: y + 'px', left: x + 'px', width, height }}
-//       className={styles.square}></div>
-//   ])
-// }
