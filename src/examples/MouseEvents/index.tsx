@@ -75,7 +75,7 @@ export const MouseEvents: FC = () => {
       mouseMove.unsubscribe()
       clickTracker.unsubscribe()
     }
-  }, [clickState, removedSquares])
+  }, [removedSquares.length])
 
   return (
     <>
@@ -110,8 +110,20 @@ export const MouseEvents: FC = () => {
         Redo
       </button>
 
-      <div style={{ opacity: clickState.type === 'mousedown' ? 0.1: 1, left: mouseXY.x + 'px' }} className={styles.vertical} />
-      <div style={{ opacity: clickState.type === 'mousedown' ? 0.1: 1, top: mouseXY.y + 'px' }} className={styles.horizontal} />
+      <div
+        style={{
+          opacity: clickState.type === 'mousedown' ? 0.1 : 1,
+          left: mouseXY.x + 'px'
+        }}
+        className={styles.vertical}
+      />
+      <div
+        style={{
+          opacity: clickState.type === 'mousedown' ? 0.1 : 1,
+          top: mouseXY.y + 'px'
+        }}
+        className={styles.horizontal}
+      />
       <div
         style={{ top: mouseXY.y + 'px', left: mouseXY.x + 'px' }}
         className={styles.crosshair}
@@ -160,4 +172,8 @@ const Square = ({
       }}
       className={color ? styles.square : styles.currentSquare}></div>
   )
+}
+
+export default {
+  MouseEvents
 }

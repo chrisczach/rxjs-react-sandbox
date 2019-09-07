@@ -1,11 +1,13 @@
-import { MouseEvents } from './MouseEvents'
-import { StartScreen } from './StartScreen'
-import { ApiSubscriber } from './ApiSubscriber'
+import { MouseEvents } from './MouseEvents/index'
+import { StartScreen } from './StartScreen/index'
+import { ApiSubscriber } from './ApiSubscriber/index'
+import { IntervalLoops } from './IntervalLoops/index'
 
 const examples: any = {
   MouseEvents,
   StartScreen,
-  ApiSubscriber
+  ApiSubscriber,
+  IntervalLoops
 }
 
 export default examples
