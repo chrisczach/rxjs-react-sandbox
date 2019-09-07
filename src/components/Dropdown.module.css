@@ -1,11 +1,13 @@
 .wrapper{
+  background: var(--color-main-light);
+  color: var(--color-accent-brand);
   position: fixed;
   top: 1em;
   right: 1em;
+  z-index: 100000;
+
 }
 
-select{
-  background: var(--color-main-light);
-  color: var(--color-main-dark);
-  font-size: 1.05em;
+.wrapper:focus{
+  outline: none;
 }
