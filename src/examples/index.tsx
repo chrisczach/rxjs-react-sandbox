@@ -1,13 +1,13 @@
 import { MouseEvents } from './MouseEvents/index'
 import { StartScreen } from './StartScreen/index'
 import { ApiSubscriber } from './ApiSubscriber/index'
-import { IntervalLoops } from './IntervalLoops/index'
+import { StopWatch } from './StopWatch/index'
 
 const examples: any = {
   MouseEvents,
   StartScreen,
   ApiSubscriber,
-  IntervalLoops
+  StopWatch
 }
 
 export default examples
