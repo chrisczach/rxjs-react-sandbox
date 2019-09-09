@@ -1,15 +1,22 @@
 import React, { FC, useState, useEffect } from 'react'
 import { timer, concat, NEVER, of, fromEvent } from 'rxjs'
-import { scan, tap, filter, switchMap } from 'rxjs/operators'
+import { scan, tap, filter, switchMap, map } from 'rxjs/operators'
 
 export const StopWatch: FC = () => {
   const [time, setTime] = useState(0)
   useEffect(() => {
     const clicks$ = fromEvent(document, 'click')
     const pauser$ = clicks$.pipe(
-      filter(buttonsOnly),
+      filter(buttonsOnly(startStop)),
       scan(acc => !acc, false)
     )
+
+    const clickLogger$ = clicks$
+      .pipe(
+        filter(buttonsOnly()),
+        map(toAction)
+      )
+      .subscribe(console.log)
 
     const starter$ = of(false)
     concat(starter$, pauser$)
@@ -32,8 +39,10 @@ export const StopWatch: FC = () => {
 }
 
 //Utilities
-const buttonsOnly = ({ target }: any) =>
-  target.value && [startStop, lap, reset].indexOf(target.value) !== -1
+const buttonsOnly = (action?: StopWatchAction) => ({ target }: any) =>
+  target.value &&
+  [startStop, lap, reset].indexOf(target.value) !== -1 &&
+  (!action || target.value === action)
 
 const toAction = ({ target: { value: action } }: any) => action
 
