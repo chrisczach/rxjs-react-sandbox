@@ -1,25 +1,35 @@
 import React, { FC, useState, useEffect } from 'react'
-import { interval, animationFrameScheduler, fromEvent, Subject } from 'rxjs'
-import { tap, map, withLatestFrom, startWith, filter } from 'rxjs/operators'
+import { timer, concat, NEVER, of, fromEvent } from 'rxjs'
+import { scan, tap, filter, switchMap } from 'rxjs/operators'
 
 export const StopWatch: FC = () => {
-
+  const [time, setTime] = useState(0)
   useEffect(() => {
-'effect'
-    return () => {
-      'cleanup'
-    }
+    const clicks$ = fromEvent(document, 'click')
+    const pauser$ = clicks$.pipe(
+      filter(buttonsOnly),
+      scan(acc => !acc, false)
+    )
+
+    const starter$ = of(false)
+    concat(starter$, pauser$)
+      .pipe(
+        switchMap(started => (started ? timer(0, 10) : NEVER)),
+        scan(acc => acc + 1, 0)
+      )
+      .subscribe(setTime)
+    return () => {}
   }, [])
 
   return (
     <>
+      <div>{time}</div>
       <button value={startStop}>Start/Stop</button>
       <button value={lap}>Lap</button>
       <button value={reset}>reset</button>
     </>
   )
 }
-
 
 //Utilities
 const buttonsOnly = ({ target }: any) =>
