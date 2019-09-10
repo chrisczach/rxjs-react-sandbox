@@ -1,13 +1,6 @@
 import React, { FC, useState, useEffect } from 'react'
-import {
-  timer,
-  concat,
-  NEVER,
-  of,
-  fromEvent,
-  Observable,
-  animationFrameScheduler
-} from 'rxjs'
+import { timer, concat, NEVER, of, fromEvent } from 'rxjs'
+import prettyms from 'pretty-ms'
 import {
   scan,
   tap,
@@ -16,8 +9,7 @@ import {
   map,
   startWith,
   withLatestFrom,
-  distinctUntilChanged,
-  endWith
+  distinctUntilChanged
 } from 'rxjs/operators'
 
 export const StopWatch: FC = () => {
@@ -26,7 +18,7 @@ export const StopWatch: FC = () => {
 
   useEffect(() => {
     console.log('effect rendered')
-    const resetToZero = resetHelper(setTime)(setLaps)
+    const resetToZero = resetHelper(setLaps)
     const addLaps = lapHelper(setLaps)
     const clicks$ = fromEvent(document, 'click')
 
@@ -38,9 +30,7 @@ export const StopWatch: FC = () => {
     const starter$ = of(false)
 
     const timer$ = concat(starter$, pauser$).pipe(
-      switchMap(started =>
-        started ? timer(0, 10, animationFrameScheduler) : NEVER
-      ),
+      switchMap(started => (started ? timer(0, 10) : NEVER)),
       scan(acc => acc + 1),
       startWith(0),
       tap(setTime)
@@ -71,12 +61,12 @@ export const StopWatch: FC = () => {
 
   return (
     <>
-      <div>{time}</div>
+      <div>{prettyms(time * 10)}</div>
       <button value={startStop}>Start/Stop</button>
       <button value={lap}>Lap</button>
       <button value={reset}>reset</button>
       {laps.map(value => (
-        <div>{value}</div>
+        <div>{prettyms(value * 10)}</div>
       ))}
     </>
   )
@@ -92,10 +82,7 @@ const toAction = ({ target: { value } }: any) => value
 
 const stopEmitZero = (number: number) => number !== 0
 
-const resetHelper = (updateTime: Function) => (updateLaps: Function) => (
-  timer: any
-) => () => {
-  updateTime(0)
+const resetHelper = (updateLaps: Function) => (timer: any) => () => {
   updateLaps([])
   return timer
 }
