@@ -1,0 +1,1 @@
+type StopWatchAction = 'startStop' | 'lap' | 'reset'

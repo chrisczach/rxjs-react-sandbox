@@ -12,6 +12,19 @@ import {
   distinctUntilChanged
 } from 'rxjs/operators'
 
+import {
+  buttonsOnly,
+  toTime,
+  togglePause,
+  stopEmitZero,
+  incrementTime,
+  reset,
+  startStop,
+  lap,
+  resetHelper,
+  lapHelper
+} from './utilities'
+
 export const StopWatch: FC = () => {
   const [time, setTime] = useState(0)
   const [laps, setLaps] = useState([])
@@ -81,35 +94,6 @@ export const StopWatch: FC = () => {
     </>
   )
 }
-
-//Utilities
-const buttonsOnly = (action?: StopWatchAction) => ({ target }: any) =>
-  target.value &&
-  [startStop, lap, reset].indexOf(target.value) !== -1 &&
-  (!action || target.value === action)
-const toTime = ([_, time]: any) => time
-const toAction = ({ target: { value } }: any) => value
-const togglePause = (acc: boolean): boolean => !acc
-const stopEmitZero = (number: number): boolean => number !== 0
-const incrementTime = (acc: number): number => acc + 1
-const resetHelper = (updateLaps: Function) => (timer: any) => () => {
-  updateLaps([])
-  return timer
-}
-
-const lapHelper = (updater: Function) => (time: number) =>
-  updater((laps: Array<number>) => [...laps, time])
-
-// const toTime = ([_, time]: [any, number]) => time
-
-const [startStop, lap, reset]: Array<StopWatchAction> = [
-  'startStop',
-  'lap',
-  'reset'
-]
-
-type StopWatchAction = 'startStop' | 'lap' | 'reset'
-
 export default {
   StopWatch
 }
