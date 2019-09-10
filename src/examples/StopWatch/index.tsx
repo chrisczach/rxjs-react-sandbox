@@ -24,14 +24,14 @@ export const StopWatch: FC = () => {
 
     const pauser$ = clicks$.pipe(
       filter(buttonsOnly(startStop)),
-      scan(acc => !acc, false)
+      scan(togglePause, false)
     )
 
     const starter$ = of(false)
 
     const timer$ = concat(starter$, pauser$).pipe(
       switchMap(started => (started ? timer(0, 10) : NEVER)),
-      scan(acc => acc + 1),
+      scan(incrementTime),
       startWith(0),
       tap(setTime)
     )
@@ -45,7 +45,7 @@ export const StopWatch: FC = () => {
     const lap$ = clicks$.pipe(
       filter(buttonsOnly(lap)),
       withLatestFrom(reset$),
-      map(([_, time]: any) => time),
+      map(toTime),
       filter(stopEmitZero),
       distinctUntilChanged(),
       tap(addLaps)
@@ -65,8 +65,18 @@ export const StopWatch: FC = () => {
       <button value={startStop}>Start/Stop</button>
       <button value={lap}>Lap</button>
       <button value={reset}>reset</button>
-      {laps.map(value => (
-        <div>{prettyms(value * 10)}</div>
+      {laps.map((value, index, array) => (
+        <div
+          style={{
+            padding: '20px',
+            border: '1px solid var(--color-main-light)'
+          }}>
+          <div>
+            Lap Time:{' '}
+            {prettyms((index === 0 ? value : value - array[index - 1]) * 10)}
+          </div>
+          <div>Total Time: {prettyms(value * 10)}</div>
+        </div>
       ))}
     </>
   )
@@ -77,11 +87,11 @@ const buttonsOnly = (action?: StopWatchAction) => ({ target }: any) =>
   target.value &&
   [startStop, lap, reset].indexOf(target.value) !== -1 &&
   (!action || target.value === action)
-
+const toTime = ([_, time]: any) => time
 const toAction = ({ target: { value } }: any) => value
-
-const stopEmitZero = (number: number) => number !== 0
-
+const togglePause = (acc: boolean): boolean => !acc
+const stopEmitZero = (number: number): boolean => number !== 0
+const incrementTime = (acc: number): number => acc + 1
 const resetHelper = (updateLaps: Function) => (timer: any) => () => {
   updateLaps([])
   return timer
