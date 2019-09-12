@@ -9,7 +9,16 @@ import {
   switchMapTo,
   mergeMap
 } from 'rxjs/operators'
-import { of, from, concat, fromEvent, NEVER, Observable, interval } from 'rxjs'
+import {
+  of,
+  from,
+  concat,
+  fromEvent,
+  NEVER,
+  Observable,
+  interval,
+  animationFrameScheduler
+} from 'rxjs'
 
 export const TrackVelocity: FC = () => {
   const trackableRef: any = useRef(null)
@@ -40,7 +49,7 @@ const startPause = scan((acc: boolean): boolean => !acc, false)
 
 const listenToMouseMoves = switchMap(
   (started: boolean): Observable<Event> =>
-    started ? fromEvent(document, 'mousemove') : NEVER
+    started ? fromEvent(document, 'mousemove').pipe() : NEVER
 )
 
 const mapToTranslateXY = (ref: any) =>
@@ -61,7 +70,9 @@ const mapToTranslateXY = (ref: any) =>
 
 const translateElementXY = switchMap(({ offsetX, offsetY, ...rest }: any) =>
   offsetX !== 0 || offsetY !== 0
-    ? interval(100).pipe(map((_: any) => ({ ...rest, offsetX, offsetY })))
+    ? interval(10, animationFrameScheduler).pipe(
+        map((_: any) => ({ ...rest, offsetX, offsetY }))
+      )
     : NEVER
 )
 
