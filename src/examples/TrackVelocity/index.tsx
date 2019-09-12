@@ -7,7 +7,8 @@ import {
   scan,
   tap,
   switchMapTo,
-  mergeMap
+  mergeMap,
+  startWith
 } from 'rxjs/operators'
 import {
   of,
@@ -22,13 +23,17 @@ import {
 
 export const TrackVelocity: FC = () => {
   const trackableRef: any = useRef(null)
-  const [clickCallback, status]: any = useEventCallback(
+  const [
+    clickCallback,
+    { clientX, clientY, elementX, elementY, offsetX, offsetY }
+  ]: any = useEventCallback(
     event$ => {
       const starter$ = event$.pipe(
+        // tap(({ clientX, clientY }: any) => console.log(clientX, ' ', clientY)),
         startPause,
         listenToMouseMoves,
         mapToTranslateXY(trackableRef),
-        translateElementXY,
+        // translateElementXY,
         logState
       )
 
@@ -36,20 +41,33 @@ export const TrackVelocity: FC = () => {
     },
     [trackableRef]
   )
+
   return (
     <>
       <div onClick={clickCallback} className={styles.wrapper}>
-        <div ref={trackableRef} className={styles.chaser} />
+        <div
+          style={{ transform: `translate(${offsetX}px,${offsetY}px)` }}
+          ref={trackableRef}
+          className={styles.chaser}
+        />
       </div>
     </>
   )
 }
 
-const startPause = scan((acc: boolean): boolean => !acc, false)
+const startPause: any = scan(
+  ({ running }, { clientX, clientY }: any): any => ({
+    clientX,
+    clientY,
+    running: !running
+  }),
+  { running: false }
+)
 
-const listenToMouseMoves = switchMap(
-  (started: boolean): Observable<Event> =>
-    started ? fromEvent(document, 'mousemove').pipe() : NEVER
+const listenToMouseMoves = switchMap(({ running, clientX, clientY }): any =>
+  running
+    ? fromEvent(document, 'mousemove').pipe(startWith({ clientX, clientY }))
+    : NEVER
 )
 
 const mapToTranslateXY = (ref: any) =>
