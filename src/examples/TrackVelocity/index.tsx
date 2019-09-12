@@ -93,16 +93,40 @@ const translateElementXY = switchMap(({ offsetX, offsetY, ...rest }: any) =>
     : NEVER
 )
 
-const mapDirectionAndSpeed = scan((a, c: any) => ({ ...a, ...c }), {
-  translateX: 0,
-  translateY: 0
-})
-
-// const translateTarget = ({ current: { offSetTop, offSetLeft } }) =>
-//   tap(({ status: { clientY, clientX } }: any) => {
-//     offSetTop = offSetTop - (clientY - offSetTop) / 2
-//     offSetLeft = offSetTop - (clientX - offSetTop) / 2
-//   })
+const mapDirectionAndSpeed = switchMap(
+  ({
+    offsetX,
+    offsetY,
+    translateX = 0,
+    translateY = 0,
+    running,
+    ...rest
+  }: any) => {
+    if ((running && offsetX !== translateX) || offsetY !== translateY) {
+      const x =
+        offsetX === translateX
+          ? 0
+          : offsetX > translateX
+          ? translateX + 1
+          : translateX - 1
+      const y =
+        offsetY === translateY
+          ? 0
+          : offsetX > translateY
+          ? translateY + 1
+          : translateY - 1
+      return interval(1000, animationFrameScheduler).pipe(
+        map((_: any) => ({
+          ...rest,
+          offsetX,
+          offsetY,
+          translateX: x,
+          translateY: y
+        }))
+      )
+    } else return NEVER
+  }
+)
 
 const logState = tap((state: any) => console.log(JSON.stringify(state)))
 
