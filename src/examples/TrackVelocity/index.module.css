@@ -1,0 +1,16 @@
+.wrapper{
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top:0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+.chaser{
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent-light);
+}
