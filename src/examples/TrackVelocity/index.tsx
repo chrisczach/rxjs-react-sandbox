@@ -32,8 +32,8 @@ export const TrackVelocity: FC = () => {
         // tap(({ clientX, clientY }: any) => console.log(clientX, ' ', clientY)),
         startPause,
         listenToMouseMoves,
-        mapToTranslateXY(trackableRef),
-        // translateElementXY,
+        mapOffsetXY(trackableRef),
+        mapDirectionAndSpeed,
         logState
       )
 
@@ -66,21 +66,20 @@ const startPause: any = scan(
 
 const listenToMouseMoves = switchMap(({ running, clientX, clientY }): any =>
   running
-    ? fromEvent(document, 'mousemove').pipe(startWith({ clientX, clientY }))
-    : NEVER
+    ? fromEvent(document, 'mousemove').pipe(
+        startWith({ running, clientX, clientY })
+      )
+    : of({ running, clientX, clientY })
 )
 
-const mapToTranslateXY = (ref: any) =>
-  map(({ clientX, clientY }: any): any => {
+const mapOffsetXY = (ref: any) =>
+  map(({ clientX, clientY, ...rest }: any): any => {
     const elementX = ref.current.offsetLeft
     const elementY = ref.current.offsetTop
     const offsetX = clientX - elementX
     const offsetY = clientY - elementY
     return {
-      clientX,
-      clientY,
-      elementX,
-      elementY,
+      ...rest,
       offsetX,
       offsetY
     }
@@ -93,6 +92,11 @@ const translateElementXY = switchMap(({ offsetX, offsetY, ...rest }: any) =>
       )
     : NEVER
 )
+
+const mapDirectionAndSpeed = scan((a, c: any) => ({ ...a, ...c }), {
+  translateX: 0,
+  translateY: 0
+})
 
 // const translateTarget = ({ current: { offSetTop, offSetLeft } }) =>
 //   tap(({ status: { clientY, clientX } }: any) => {
