@@ -5,11 +5,14 @@ import {
   map,
   switchMap,
   scan,
+  timeInterval,
   tap,
   switchMapTo,
   mergeMap,
   startWith,
-  pluck
+  pluck,
+  throttle,
+  debounce
 } from 'rxjs/operators'
 import {
   of,
@@ -37,16 +40,38 @@ export const TrackVelocity: FC = () => {
         listenToMouseMoves
       )
       const chaserState$ = of({ elementX: 0, elementY: 0 })
-      const appState$ = combineLatest(mouseState$, chaserState$).pipe(
+      const frames$ = interval(500, animationFrameScheduler).pipe(
+        map(num => ({ frame: num }))
+      )
+      const appState$ = combineLatest(mouseState$, chaserState$, frames$).pipe(
         mapCombinedState,
-        switchMap(({ running, ...positions }) => {
-          if (running) {
-            //do stuff trigger interval
-            return of({ ...positions, running })
-          } else {
-            return of({ ...positions, running })
+        scan(
+          (
+            { elementX, elementY, ...acc },
+            { running, clientX, clientY, ...curr }
+          ) => {
+            const nextX = running
+              ? clientX > elementX
+                ? elementX + 10
+                : elementX - 10
+              : elementX
+            const nextY = running
+              ? clientY > elementY
+                ? elementY + 10
+                : elementY - 10
+              : elementY
+
+            return {
+              ...acc,
+              ...curr,
+              clientX,
+              clientY,
+              elementX: nextX,
+              elementY: nextY,
+              running
+            }
           }
-        }),
+        ),
         logState
       )
       return appState$
@@ -58,7 +83,7 @@ export const TrackVelocity: FC = () => {
     <>
       <div onClick={clickCallback} className={styles.wrapper}>
         <div
-          style={{ transform: `translate(${clientX}px,${clientY}px)` }}
+          style={{ transform: `translate(${elementX}px,${elementY}px)` }}
           ref={trackableRef}
           className={styles.chaser}
         />
