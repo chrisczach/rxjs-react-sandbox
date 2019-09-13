@@ -11,4 +11,5 @@
   width: 10px;
   height: 10px;
   background: var(--color-accent-light);
+  /* transition: all ease .16s; */
 }

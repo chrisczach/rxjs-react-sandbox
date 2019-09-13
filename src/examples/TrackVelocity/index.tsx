@@ -12,7 +12,8 @@ import {
   startWith,
   pluck,
   throttle,
-  debounce
+  debounce,
+  throttleTime
 } from 'rxjs/operators'
 import {
   of,
@@ -26,7 +27,6 @@ import {
   animationFrameScheduler,
   Subject
 } from 'rxjs'
-import { access } from 'fs'
 
 export const TrackVelocity: FC = () => {
   const trackableRef: any = useRef(null)
@@ -40,26 +40,38 @@ export const TrackVelocity: FC = () => {
         listenToMouseMoves
       )
       const chaserState$ = of({ elementX: 0, elementY: 0 })
-      const frames$ = interval(500, animationFrameScheduler).pipe(
+      const frames$ = interval(1000 / 60, animationFrameScheduler).pipe(
         map(num => ({ frame: num }))
       )
       const appState$ = combineLatest(mouseState$, chaserState$, frames$).pipe(
+        throttleTime(1000 / 60, animationFrameScheduler),
         mapCombinedState,
         scan(
           (
             { elementX, elementY, ...acc },
             { running, clientX, clientY, ...curr }
           ) => {
-            const nextX = running
-              ? clientX > elementX
-                ? elementX + 10
-                : elementX - 10
-              : elementX
-            const nextY = running
-              ? clientY > elementY
-                ? elementY + 10
-                : elementY - 10
-              : elementY
+
+            //need to fix all this
+            const pixels = 5
+            const difX = clientX - elementX
+            const difY = clientY - elementY
+            const difTotal = difX + difY
+            const translateX = Math.round((pixels / difTotal) * difX)
+            const translateY = Math.round((pixels / difTotal) * difY)
+
+            const nextX =
+              running && difTotal > pixels
+                ? clientX > elementX
+                  ? elementX + pixels
+                  : elementX - pixels
+                : elementX
+            const nextY =
+              running && difTotal > pixels
+                ? clientY > elementY
+                  ? elementY + pixels
+                  : elementY - pixels
+                : elementY
 
             return {
               ...acc,
