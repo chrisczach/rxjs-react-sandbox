@@ -95,31 +95,45 @@ const listenToMouseMoves = switchMap(({ running, clientX, clientY }): any =>
 
 const logState = tap((state: any) => console.log(JSON.stringify(state)))
 
+const getAngle = (cx: any, cy: any, ex: any, ey: any): any => {
+  const dy = ey - cy
+  const dx = ex - cx
+  let theta = Math.atan2(dy, dx) // range (-PI, PI]
+  theta *= 180 / Math.PI // rads to degs, range (-180, 180]
+  return theta
+}
+
+const angle360 = (cx: any, cy: any, ex: any, ey: any): any => {
+  let theta = getAngle(cx, cy, ex, ey) // range (-180, 180]
+  if (theta < 0) theta = 360 + theta // range [0, 360)
+  return theta
+}
+
+const findNewPoint = (
+  x: number,
+  y: number,
+  angle: number,
+  distance: number
+): { x: number; y: number } => {
+  const result = { x: 0, y: 0 }
+
+  result.x = Math.round(Math.cos((angle * Math.PI) / 180) * distance + x)
+  result.y = Math.round(Math.sin((angle * Math.PI) / 180) * distance + y)
+
+  return result
+}
+
 const updateChaserLocation = scan(
   (
     { elementX, elementY, ...acc },
     { running, clientX, clientY, ...curr }: any
   ) => {
     //need to fix all this
-    const pixels = 5
-    const difX = clientX - elementX
-    const difY = clientY - elementY
-    const difTotal = difX + difY
-    const translateX = Math.round((pixels / difTotal) * difX)
-    const translateY = Math.round((pixels / difTotal) * difY)
-
-    const nextX =
-      running && Math.abs(difX) > pixels
-        ? clientX > elementX
-          ? elementX + pixels
-          : elementX - pixels
-        : elementX
-    const nextY =
-      running && Math.abs(difY) > pixels
-        ? clientY > elementY
-          ? elementY + pixels
-          : elementY - pixels
-        : elementY
+    const distance = 5
+    const angle = getAngle(elementX, elementY, clientX, clientY)
+    const { x: nextX, y: nextY } = running
+      ? findNewPoint(elementX, elementY, angle, distance)
+      : { x: elementX, y: elementY }
 
     return {
       ...acc,
