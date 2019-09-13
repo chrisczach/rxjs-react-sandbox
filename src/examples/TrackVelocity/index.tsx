@@ -39,7 +39,7 @@ export const TrackVelocity: FC = () => {
         startPause,
         listenToMouseMoves
       )
-      const chaserState$ = of({ elementX: 0, elementY: 0 })
+      const chaserState$ = of({ elementX: 0, elementY: 0, speed: 1 })
       const frames$ = interval(1000 / 60, animationFrameScheduler).pipe(
         map(num => ({ frame: num }))
       )
@@ -103,12 +103,6 @@ const getAngle = (cx: any, cy: any, ex: any, ey: any): any => {
   return theta
 }
 
-const angle360 = (cx: any, cy: any, ex: any, ey: any): any => {
-  let theta = getAngle(cx, cy, ex, ey) // range (-180, 180]
-  if (theta < 0) theta = 360 + theta // range [0, 360)
-  return theta
-}
-
 const findNewPoint = (
   x: number,
   y: number,
@@ -125,11 +119,11 @@ const findNewPoint = (
 
 const updateChaserLocation = scan(
   (
-    { elementX, elementY, ...acc },
+    { speed, elementX, elementY, ...acc },
     { running, clientX, clientY, ...curr }: any
   ) => {
     //need to fix all this
-    const distance = 5
+    const distance = speed
     const angle = getAngle(elementX, elementY, clientX, clientY)
     const { x: nextX, y: nextY } = running
       ? findNewPoint(elementX, elementY, angle, distance)
@@ -142,7 +136,8 @@ const updateChaserLocation = scan(
       clientY,
       elementX: nextX,
       elementY: nextY,
-      running
+      running,
+      speed: speed * 1.005
     }
   }
 )
