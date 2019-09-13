@@ -46,44 +46,7 @@ export const TrackVelocity: FC = () => {
       const appState$ = combineLatest(mouseState$, chaserState$, frames$).pipe(
         throttleTime(1000 / 60, animationFrameScheduler),
         mapCombinedState,
-        scan(
-          (
-            { elementX, elementY, ...acc },
-            { running, clientX, clientY, ...curr }
-          ) => {
-
-            //need to fix all this
-            const pixels = 5
-            const difX = clientX - elementX
-            const difY = clientY - elementY
-            const difTotal = difX + difY
-            const translateX = Math.round((pixels / difTotal) * difX)
-            const translateY = Math.round((pixels / difTotal) * difY)
-
-            const nextX =
-              running && difTotal > pixels
-                ? clientX > elementX
-                  ? elementX + pixels
-                  : elementX - pixels
-                : elementX
-            const nextY =
-              running && difTotal > pixels
-                ? clientY > elementY
-                  ? elementY + pixels
-                  : elementY - pixels
-                : elementY
-
-            return {
-              ...acc,
-              ...curr,
-              clientX,
-              clientY,
-              elementX: nextX,
-              elementY: nextY,
-              running
-            }
-          }
-        ),
+        updateChaserLocation,
         logState
       )
       return appState$
@@ -131,6 +94,44 @@ const listenToMouseMoves = switchMap(({ running, clientX, clientY }): any =>
 )
 
 const logState = tap((state: any) => console.log(JSON.stringify(state)))
+
+const updateChaserLocation = scan(
+  (
+    { elementX, elementY, ...acc },
+    { running, clientX, clientY, ...curr }: any
+  ) => {
+    //need to fix all this
+    const pixels = 5
+    const difX = clientX - elementX
+    const difY = clientY - elementY
+    const difTotal = difX + difY
+    const translateX = Math.round((pixels / difTotal) * difX)
+    const translateY = Math.round((pixels / difTotal) * difY)
+
+    const nextX =
+      running && Math.abs(difX) > pixels
+        ? clientX > elementX
+          ? elementX + pixels
+          : elementX - pixels
+        : elementX
+    const nextY =
+      running && Math.abs(difY) > pixels
+        ? clientY > elementY
+          ? elementY + pixels
+          : elementY - pixels
+        : elementY
+
+    return {
+      ...acc,
+      ...curr,
+      clientX,
+      clientY,
+      elementX: nextX,
+      elementY: nextY,
+      running
+    }
+  }
+)
 
 export default {
   TrackVelocity
